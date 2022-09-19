@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 features:
   - ipfsOnEthereumContracts
 dataSources:
@@ -21,7 +21,7 @@ dataSources:
         - Transfer
       abis:
         - name: Doodle
-          file: ./abis/Doodle.json
+          file: Doodle/abis/Doodle.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -31,4 +31,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: ./src/doodle.ts
+      file: Doodle/Doodle.wasm

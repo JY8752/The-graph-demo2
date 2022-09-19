@@ -1,3 +1,4 @@
+import { ipfs, json } from "@graphprotocol/graph-ts"
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -49,5 +50,46 @@ export function handleTransfer(event: TransferEvent): void {
   entity.from = event.params.from
   entity.to = event.params.to
   entity.tokenId = event.params.tokenId
+
+  const metadataHash = "QmPMc4tcBsMqLRuCQtPmPe84bpSjrC3Ky7t3JWuHXYB4aS"
+  const metadata = ipfs.cat(`${metadataHash}/${event.params.tokenId}`)
+  if(metadata) {
+    const metadataJson = json.fromBytes(metadata).toObject()
+
+    const image = metadataJson.get("image")
+    if(image) {
+      entity.image = image.toString()
+    }
+
+    const description = metadataJson.get("description")
+    if(description) {
+      entity.description = description.toString()
+    }
+
+    const attributes = metadataJson.get("attributes")
+    if(attributes) {
+      const attributesArray = attributes.toArray()
+      for(let i = 0; i < attributesArray.length; i++) {
+        const item = attributesArray[i].toObject()
+        const traitType = item.get("trait_type")
+        const value = item.get("value")
+        if(traitType && value) {
+          if(traitType.toString() === "face") {
+            entity.face = value.toString()
+          } else if(traitType.toString() === "hair") {
+            entity.hair = value.toString()
+          } else if(traitType.toString() === "body") {
+            entity.body = value.toString()
+          } else if(traitType.toString() === "background") {
+            entity.background = value.toString()
+          } else if(traitType.toString() === "head") {
+            entity.head = value.toString()
+          } else {
+            //nop
+          }
+        }
+      }
+    }
+  }
   entity.save()
 }
